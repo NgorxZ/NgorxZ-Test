@@ -20,10 +20,12 @@ namespace Formular
 
         static void Main(string[] args)
         {
-            var input = "((3+12*2))";
-
-            Console.WriteLine(GetFormular(input).ToString());
-            Console.ReadLine();
+            var input = Console.ReadLine();
+            while ("" != input)
+            {
+                Console.WriteLine(GetFormular(input).ToString());
+                input = Console.ReadLine();
+            }
         }
 
         static double GetFormular(string input)
@@ -31,12 +33,30 @@ namespace Formular
             return Eval(input);
         }
 
-         static double Eval(string expression)
+        static double Eval(string expression)
         {
             List<string> tokens = GetTokens(expression);
             Stack<double> operandStack = new Stack<double>();
             Stack<string> operatorStack = new Stack<string>();
             int tokenIndex = 0;
+
+            if (Array.IndexOf(tokens.ToArray(), "(") < 0)
+            {
+                if (tokens.ToArray<string>().Intersect<string>(_operators).Count<string>() > 1)
+                {
+                    if (Array.IndexOf(tokens.ToArray(), "+") >= 0)
+                    {
+                        tokens.Insert(Array.IndexOf(tokens.ToArray(), "+") - 1, "(");
+                        tokens.Insert(Array.IndexOf(tokens.ToArray(), "+") + 2, ")");
+                    }
+                    else if (Array.IndexOf(tokens.ToArray(), "-") >= 0)
+                    {
+                        tokens.Insert(Array.IndexOf(tokens.ToArray(), "-") - 1, "(");
+                        tokens.Insert(Array.IndexOf(tokens.ToArray(), "-") + 2, ")");
+                    }
+                }
+            }
+
 
             while (tokenIndex < tokens.Count)
             {
@@ -47,6 +67,10 @@ namespace Formular
                     operandStack.Push(Eval(subExpr));
                     continue;
                 }
+
+
+
+
                 if (token == ")")
                 {
                     throw new ArgumentException("Mis-matched parentheses in expression");
@@ -65,7 +89,7 @@ namespace Formular
                     }
                     operatorStack.Push(token);
                 }
-                
+
                 else
                 {
                     operandStack.Push(double.Parse(token));
@@ -116,6 +140,9 @@ namespace Formular
             return subExpr.ToString();
         }
 
+
+
+
         static List<string> GetTokens(string expression)
         {
             string operators = "()+-^*/";
@@ -125,7 +152,7 @@ namespace Formular
             //ลบช่องว่างออกใน input เพื่อนำ Char แต่ละตัวมาใส่ยัง List<String>()
             foreach (char c in expression.Replace(" ", string.Empty))
             {
-                
+
                 if (operators.IndexOf(c) >= 0) //ถ้าพบว่า charector เป็น Operator
                 {
                     if ((sb.Length > 0)) //พบว่า sb มีความยาวมากกว่า 0 
@@ -141,7 +168,7 @@ namespace Formular
 
             if ((sb.Length > 0))
                 tokens.Add(sb.ToString());
-            
+
             return tokens;
         }
     }
